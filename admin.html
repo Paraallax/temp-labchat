@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Anjeev Singh Academy</title>
+
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+    <!-- =========================================
+         ADMIN APP
+    ========================================== -->
+
+    <div id="adminApp" class="admin-app hidden">
+
+        <!-- =====================================
+             SIDEBAR
+        ====================================== -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+
+                <div class="admin-logo">
+                    LC
+                </div>
+
+                <div>
+                    <h1>LabChat</h1>
+                    <span>Admin Panel</span>
+                </div>
+
+            </div>
+
+
+            <nav class="sidebar-nav">
+
+                <button
+                    class="nav-item active"
+                    data-section="dashboard"
+                    type="button"
+                >
+                    <span class="nav-icon">⌂</span>
+                    Dashboard
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    data-section="users"
+                    type="button"
+                >
+                    <span class="nav-icon">◉</span>
+                    Users
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    data-section="create-user"
+                    type="button"
+                >
+                    <span class="nav-icon">+</span>
+                    Create User
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    data-section="access-codes"
+                    type="button"
+                >
+                    <span class="nav-icon">#</span>
+                    Access Codes
+                </button>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+                <div class="admin-account">
+
+                    <div class="account-avatar">
+                        A
+                    </div>
+
+                    <div class="account-details">
+
+                        <strong id="adminName">
+                            Admin
+                        </strong>
+
+                        <span>
+                            Administrator
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="logoutButton"
+                    class="logout-button"
+                    type="button"
+                >
+                    Sign Out
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =====================================
+             MAIN
+        ====================================== -->
+
+        <main class="main-content">
+
+            <!-- TOPBAR -->
+
+            <header class="admin-topbar">
+
+                <div>
+
+                    <h2 id="pageTitle">
+                        Dashboard
+                    </h2>
+
+                    <p id="pageSubtitle">
+                        Manage your LabChat system.
+                    </p>
+
+                </div>
+
+
+                <div class="system-status">
+
+                    <span class="status-dot"></span>
+
+                    <span>
+                        System Online
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================
+                 DASHBOARD
+            ================================== -->
+
+            <section
+                id="dashboardSection"
+                class="admin-section"
+            >
+
+                <div class="stats-grid">
+
+                    <article class="stat-card">
+
+                        <div class="stat-icon">
+                            U
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Total Users
+                            </span>
+
+                            <strong id="totalUsers">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-icon">
+                            ●
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Active Users
+                            </span>
+
+                            <strong id="activeUsers">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-icon">
+                            ◉
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Online Now
+                            </span>
+
+                            <strong id="onlineUsers">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-icon">
+                            M
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Messages
+                            </span>
+
+                            <strong id="totalMessages">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- QUICK ACTIONS -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>Quick Actions</h3>
+
+                            <p>
+                                Manage LabChat users quickly.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="quick-actions">
+
+                        <button
+                            type="button"
+                            class="quick-action"
+                            data-section="create-user"
+                        >
+                            <span>+</span>
+
+                            <div>
+                                <strong>
+                                    Create User
+                                </strong>
+
+                                <small>
+                                    Add a new LabChat account
+                                </small>
+                            </div>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="quick-action"
+                            data-section="users"
+                        >
+                            <span>◉</span>
+
+                            <div>
+                                <strong>
+                                    Manage Users
+                                </strong>
+
+                                <small>
+                                    Edit accounts and status
+                                </small>
+                            </div>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SYSTEM INFORMATION -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h3>
+                                System Information
+                            </h3>
+
+                            <p>
+                                Current LabChat status.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="system-info-grid">
+
+                        <div class="info-item">
+
+                            <span>
+                                Authentication
+                            </span>
+
+                            <strong>
+                                Supabase Auth
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span>
+                                Database
+                            </span>
+
+                            <strong>
+                                Supabase
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span>
+                                Messaging
+                            </span>
+
+                            <strong>
+                                Realtime
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span>
+                                Message Lifetime
+                            </span>
+
+                            <strong>
+                                5 Minutes
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================
+                 USERS
+            ================================== -->
+
+            <section
+                id="usersSection"
+                class="admin-section hidden"
+            >
+
+                <div class="panel">
+
+                    <div class="panel-header users-header">
+
+                        <div>
+
+                            <h3>
+                                User Management
+                            </h3>
+
+                            <p>
+                                Manage LabChat accounts.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            id="refreshUsersButton"
+                            class="secondary-button"
+                            type="button"
+                        >
+                            Refresh
+                        </button>
+
+                    </div>
+
+
+                    <div class="search-row">
+
+                        <input
+                            id="userSearch"
+                            type="search"
+                            placeholder="Search users..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        User
+                                    </th>
+
+                                    <th>
+                                        Role
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Created
+                                    </th>
+
+                                    <th>
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="usersTableBody">
+
+                                <tr>
+
+                                    <td
+                                        colspan="5"
+                                        class="table-empty"
+                                    >
+                                        Loading users...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================
+                 ACCESS CODES
+            ================================== -->
+
+            <section
+                id="accessCodesSection"
+                class="admin-section hidden"
+            >
+
+                <div class="panel">
+
+                    <div class="panel-header users-header">
+
+                        <div>
+
+                            <h3>
+                                Access Code Management
+                            </h3>
+
+                            <p>
+                                Create, change, block and manage LabChat access codes.
+                            </p>
+
+                        </div>
+
+
+                        <div class="panel-header-actions">
+
+                            <button
+                                id="refreshAccessCodesButton"
+                                class="secondary-button"
+                                type="button"
+                            >
+                                Refresh
+                            </button>
+
+                            <button
+                                id="createAccessCodeButton"
+                                class="primary-button"
+                                type="button"
+                            >
+                                Create Code
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="search-row">
+
+                        <input
+                            id="accessCodeSearch"
+                            type="search"
+                            placeholder="Search by username..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        User
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Expires
+                                    </th>
+
+                                    <th>
+                                        Last Used
+                                    </th>
+
+                                    <th>
+                                        Failed
+                                    </th>
+
+                                    <th>
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="accessCodesTableBody">
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="table-empty"
+                                    >
+                                        Loading access codes...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================
+                 CREATE USER
+            ================================== -->
+
+            <section
+                id="createUserSection"
+                class="admin-section hidden"
+            >
+
+                <div class="panel create-user-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h3>
+                                Create User
+                            </h3>
+
+                            <p>
+                                Create a new LabChat account.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form id="createUserForm">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label
+                                    for="newUserEmail"
+                                >
+                                    Email
+                                </label>
+
+                                <input
+                                    id="newUserEmail"
+                                    type="email"
+                                    placeholder="user@example.com"
+                                    autocomplete="off"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label
+                                    for="newUserUsername"
+                                >
+                                    Username
+                                </label>
+
+                                <input
+                                    id="newUserUsername"
+                                    type="text"
+                                    maxlength="30"
+                                    placeholder="Enter username"
+                                    autocomplete="off"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label
+                                    for="newUserPassword"
+                                >
+                                    Password
+                                </label>
+
+                                <input
+                                    id="newUserPassword"
+                                    type="password"
+                                    minlength="6"
+                                    placeholder="Create password"
+                                    autocomplete="new-password"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label
+                                    for="newUserRole"
+                                >
+                                    Role
+                                </label>
+
+                                <select
+                                    id="newUserRole"
+                                >
+
+                                    <option value="user">
+                                        User
+                                    </option>
+
+                                    <option value="admin">
+                                        Admin
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="createUserMessage"
+                            class="form-message"
+                        ></div>
+
+
+                        <button
+                            type="submit"
+                            id="createUserButton"
+                            class="primary-button"
+                        >
+                            Create User
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================================
+         LOADING SCREEN
+    ========================================== -->
+
+    <div
+        id="loadingScreen"
+        class="loading-screen"
+    >
+
+        <div class="loading-box">
+
+            <div class="loading-logo">
+                LC
+            </div>
+
+            <strong>
+                Checking admin access...
+            </strong>
+
+            <span>
+                Please wait
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         EDIT USER MODAL
+    ========================================== -->
+
+    <div
+        id="editUserOverlay"
+        class="modal-overlay hidden"
+    >
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h3>
+                        Edit User
+                    </h3>
+
+                    <p>
+                        Update account settings.
+                    </p>
+
+                </div>
+
+                <button
+                    id="closeEditModal"
+                    class="modal-close"
+                    type="button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="editUserForm">
+
+                <input
+                    id="editUserId"
+                    type="hidden"
+                >
+
+
+                <div class="form-group">
+
+                    <label>
+                        Username
+                    </label>
+
+                    <input
+                        id="editUsername"
+                        type="text"
+                        maxlength="30"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Role
+                    </label>
+
+                    <select id="editRole">
+
+                        <option value="user">
+                            User
+                        </option>
+
+                        <option value="admin">
+                            Admin
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Account Status
+                    </label>
+
+                    <select id="editStatus">
+
+                        <option value="true">
+                            Active
+                        </option>
+
+                        <option value="false">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    id="editUserMessage"
+                    class="form-message"
+                ></div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="cancelEditButton"
+                        class="secondary-button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================
+         ACCESS CODE MODAL
+    ========================================== -->
+
+    <div
+        id="accessCodeOverlay"
+        class="modal-overlay hidden"
+    >
+
+        <div class="modal-card access-code-modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h3 id="accessCodeModalTitle">
+                        Create Access Code
+                    </h3>
+
+                    <p id="accessCodeModalSubtitle">
+                        Assign an access code to a LabChat account.
+                    </p>
+
+                </div>
+
+                <button
+                    id="closeAccessCodeModal"
+                    class="modal-close"
+                    type="button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="accessCodeForm">
+
+                <input
+                    id="accessCodeId"
+                    type="hidden"
+                >
+
+
+                <div class="form-group">
+
+                    <label for="accessCodeUser">
+                        User
+                    </label>
+
+                    <select
+                        id="accessCodeUser"
+                        required
+                    >
+                        <option value="">
+                            Select user
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="accessCodeValue">
+                        Access Code
+                    </label>
+
+                    <div class="code-input-row">
+
+                        <input
+                            id="accessCodeValue"
+                            type="text"
+                            inputmode="numeric"
+                            pattern="[0-9]{8,12}"
+                            minlength="8"
+                            maxlength="12"
+                            placeholder="8–12 digits"
+                            autocomplete="off"
+                            required
+                        >
+
+                        <button
+                            id="generateAccessCodeButton"
+                            class="secondary-button"
+                            type="button"
+                        >
+                            Generate
+                        </button>
+
+                    </div>
+
+                    <small class="form-hint">
+                        The code is stored as a hash and cannot be recovered later.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="accessCodeExpiry">
+                        Expiry
+                    </label>
+
+                    <select id="accessCodeExpiry">
+
+                        <option value="keep">
+                            Keep current expiry
+                        </option>
+
+                        <option value="never">
+                            Never expires
+                        </option>
+
+                        <option value="1d">
+                            1 day
+                        </option>
+
+                        <option value="7d">
+                            7 days
+                        </option>
+
+                        <option value="30d">
+                            30 days
+                        </option>
+
+                        <option value="90d">
+                            90 days
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    id="accessCodeMessage"
+                    class="form-message"
+                ></div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="cancelAccessCodeButton"
+                        class="secondary-button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="saveAccessCodeButton"
+                        class="primary-button"
+                    >
+                        Create Code
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         NEW CODE RESULT
+    ========================================== -->
+
+    <div
+        id="newAccessCodeOverlay"
+        class="modal-overlay hidden"
+    >
+
+        <div class="modal-card code-result-modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h3>
+                        Access Code Ready
+                    </h3>
+
+                    <p>
+                        Save this code now. It will not be shown again.
+                    </p>
+
+                </div>
+
+                <button
+                    id="closeNewAccessCodeModal"
+                    class="modal-close"
+                    type="button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="code-result-body">
+
+                <div
+                    id="newAccessCodeUser"
+                    class="code-result-user"
+                ></div>
+
+                <div class="code-display-row">
+
+                    <code id="newAccessCodeValue"></code>
+
+                    <button
+                        id="copyNewAccessCodeButton"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+                <div
+                    id="newAccessCodeMessage"
+                    class="form-message"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         SCRIPTS
+    ========================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="admin.js"></script>
+
+</body>
+</html>
