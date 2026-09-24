@@ -30,9 +30,6 @@ const supabaseClient =
    PDF CONFIG
    ========================================================= */
 
-const PDF_FILE =
-    "XI-AI-UNIT-3-Python-Programming.pdf";
-
 const PDFJS_VERSION =
     "5.4.54";
 
@@ -1026,27 +1023,20 @@ async function initializePDFViewer() {
             PDFJS_WORKER_URL;
 
 
-        const activePDF =
-            await getActivePDFDocument();
+        const activePDF = await getActivePDFDocument();
 
+if (!activePDF?.url) {
+    throw new Error(
+        "No active PDF is configured."
+    );
+}
 
-        const pdfURL =
-            activePDF?.url ||
-            new URL(
-                PDF_FILE,
-                window.location.href
-            ).href;
+const pdfURL = activePDF.url;
 
-
-        if (
-            pdfDocumentTitle
-        ) {
-
-            pdfDocumentTitle.textContent =
-                activePDF?.title ||
-                "XI-AI-UNIT-3-Python-Programming";
-
-        }
+if (pdfDocumentTitle) {
+    pdfDocumentTitle.textContent =
+        activePDF.title;
+}
 
 
         console.log(
@@ -1127,56 +1117,41 @@ async function initializePDFViewer() {
  * The original local file remains a safe fallback for an empty or
  * temporarily unavailable pdf_documents table. */
 async function getActivePDFDocument() {
-
     try {
+        const { data, error } = await supabaseClient
+            .from("pdf_documents")
+            .select("id, title, file_name, github_url")
+            .eq("is_active", true)
+            .maybeSingle();
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("pdf_documents")
-                .select("title, file_name, github_url")
-                .eq("is_active", true)
-                .maybeSingle();
-
-
-        if (
-            error ||
-            !data?.github_url
-        ) {
-
-            if (
+        if (error) {
+            console.error(
+                "Active PDF lookup failed:",
                 error
-            ) {
-
-                console.warn(
-                    "Active PDF lookup failed; using local fallback:",
-                    error
-                );
-
-            }
-
+            );
 
             return null;
         }
 
+        if (!data?.github_url) {
+            console.warn(
+                "No active PDF is configured in pdf_documents."
+            );
+
+            return null;
+        }
 
         return {
+            id: data.id,
             title:
                 data.title ||
                 data.file_name ||
                 "LabChat document",
-            url:
-                data.github_url
+            url: data.github_url
         };
-
-    } catch (
-        error
-    ) {
-
-        console.warn(
-            "Active PDF lookup failed; using local fallback:",
+    } catch (error) {
+        console.error(
+            "Active PDF lookup failed:",
             error
         );
 
