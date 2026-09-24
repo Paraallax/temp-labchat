@@ -82,6 +82,16 @@
                     Access Codes
                 </button>
 
+
+                <button
+                    class="nav-item"
+                    data-section="pdfs"
+                    type="button"
+                >
+                    <span class="nav-icon">▣</span>
+                    PDF Management
+                </button>
+
             </nav>
 
 
@@ -612,6 +622,120 @@
                                         class="table-empty"
                                     >
                                         Loading access codes...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================
+                 PDF MANAGEMENT
+            ================================== -->
+
+            <section
+                id="pdfsSection"
+                class="admin-section hidden"
+            >
+
+                <div class="panel">
+
+                    <div class="panel-header users-header">
+
+                        <div>
+
+                            <h3>
+                                PDF Management
+                            </h3>
+
+                            <p>
+                                Manage GitHub-hosted PDFs and choose which document is active for LabChat.
+                            </p>
+
+                        </div>
+
+                        <div class="panel-header-actions">
+
+                            <button
+                                id="refreshPDFButton"
+                                class="secondary-button"
+                                type="button"
+                            >
+                                Refresh
+                            </button>
+
+                            <button
+                                id="addPDFButton"
+                                class="primary-button"
+                                type="button"
+                            >
+                                Add PDF
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="search-row">
+
+                        <input
+                            id="pdfSearch"
+                            type="search"
+                            placeholder="Search PDFs..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        PDF
+                                    </th>
+
+                                    <th>
+                                        GitHub Path
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Updated
+                                    </th>
+
+                                    <th>
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="pdfTableBody">
+
+                                <tr>
+
+                                    <td
+                                        colspan="5"
+                                        class="table-empty"
+                                    >
+                                        Loading PDFs...
                                     </td>
 
                                 </tr>
@@ -1165,6 +1289,155 @@
                 ></div>
 
             </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         PDF MODAL
+    ========================================== -->
+
+    <div
+        id="pdfOverlay"
+        class="modal-overlay hidden"
+    >
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h3 id="pdfModalTitle">
+                        Add PDF
+                    </h3>
+
+                    <p id="pdfModalSubtitle">
+                        Add a PDF that has already been uploaded to GitHub.
+                    </p>
+
+                </div>
+
+                <button
+                    id="closePDFModal"
+                    class="modal-close"
+                    type="button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <form id="pdfForm">
+
+                <input
+                    id="pdfId"
+                    type="hidden"
+                >
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="pdfTitle">
+                            Title
+                        </label>
+
+                        <input
+                            id="pdfTitle"
+                            type="text"
+                            maxlength="150"
+                            placeholder="e.g. Class 11 Chemistry Chapter 1"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="pdfFileName">
+                            File Name
+                        </label>
+
+                        <input
+                            id="pdfFileName"
+                            type="text"
+                            maxlength="255"
+                            placeholder="chapter-1.pdf"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="pdfGithubPath">
+                            GitHub Path
+                        </label>
+
+                        <input
+                            id="pdfGithubPath"
+                            type="text"
+                            maxlength="500"
+                            placeholder="pdfs/chapter-1.pdf"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="pdfGithubUrl">
+                            GitHub PDF URL
+                        </label>
+
+                        <input
+                            id="pdfGithubUrl"
+                            type="url"
+                            maxlength="2000"
+                            placeholder="https://.../chapter-1.pdf"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="form-hint" style="margin-top: 12px;">
+                    Upload the actual PDF to GitHub yourself, then store its public PDF URL here.
+                </div>
+
+                <div
+                    id="pdfMessage"
+                    class="form-message"
+                ></div>
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="cancelPDFButton"
+                        class="secondary-button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="savePDFButton"
+                        class="primary-button"
+                    >
+                        Add PDF
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
 
