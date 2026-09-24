@@ -1,6 +1,6 @@
 /* ==========================================
    LABCHAT ADMIN — SUPABASE
-   ========================================== */
+========================================== */
 
 const SUPABASE_URL =
     "https://izobeyuplyramoojazdg.supabase.co";
@@ -17,7 +17,7 @@ const supabaseClient =
 
 /* ==========================================
    STATE
-   ========================================== */
+========================================== */
 
 let currentAdmin = null;
 let currentProfile = null;
@@ -29,10 +29,13 @@ let accessCodes = [];
 let accessCodeUsers = [];
 let editingAccessCodeId = null;
 
+let pdfDocuments = [];
+let editingPDFId = null;
+
 
 /* ==========================================
-   DOM
-   ========================================== */
+   COMMON DOM
+========================================== */
 
 const loadingScreen =
     document.getElementById("loadingScreen");
@@ -70,7 +73,7 @@ const refreshUsersButton =
 
 /* ==========================================
    ACCESS CODE DOM
-   ========================================== */
+========================================== */
 
 const accessCodesSection =
     document.getElementById(
@@ -194,8 +197,108 @@ const newAccessCodeMessage =
 
 
 /* ==========================================
+   PDF MANAGEMENT DOM
+========================================== */
+
+const pdfSection =
+    document.getElementById(
+        "pdfSection"
+    );
+
+const pdfTableBody =
+    document.getElementById(
+        "pdfTableBody"
+    );
+
+const pdfSearch =
+    document.getElementById(
+        "pdfSearch"
+    );
+
+const refreshPDFButton =
+    document.getElementById(
+        "refreshPDFButton"
+    );
+
+const addPDFButton =
+    document.getElementById(
+        "addPDFButton"
+    );
+
+const pdfOverlay =
+    document.getElementById(
+        "pdfOverlay"
+    );
+
+const pdfForm =
+    document.getElementById(
+        "pdfForm"
+    );
+
+const pdfId =
+    document.getElementById(
+        "pdfId"
+    );
+
+const pdfTitle =
+    document.getElementById(
+        "pdfTitle"
+    );
+
+const pdfFileName =
+    document.getElementById(
+        "pdfFileName"
+    );
+
+const pdfGithubPath =
+    document.getElementById(
+        "pdfGithubPath"
+    );
+
+const pdfGithubUrl =
+    document.getElementById(
+        "pdfGithubUrl"
+    );
+
+const pdfSetActive =
+    document.getElementById(
+        "pdfSetActive"
+    );
+
+const pdfModalTitle =
+    document.getElementById(
+        "pdfModalTitle"
+    );
+
+const pdfModalSubtitle =
+    document.getElementById(
+        "pdfModalSubtitle"
+    );
+
+const pdfMessage =
+    document.getElementById(
+        "pdfMessage"
+    );
+
+const savePDFButton =
+    document.getElementById(
+        "savePDFButton"
+    );
+
+const closePDFModal =
+    document.getElementById(
+        "closePDFModal"
+    );
+
+const cancelPDFButton =
+    document.getElementById(
+        "cancelPDFButton"
+    );
+
+
+/* ==========================================
    NAVIGATION
-   ========================================== */
+========================================== */
 
 const navItems =
     document.querySelectorAll(
@@ -234,8 +337,8 @@ const pageSubtitle =
 
 
 /* ==========================================
-   CREATE USER
-   ========================================== */
+   CREATE USER DOM
+========================================== */
 
 const createUserForm =
     document.getElementById(
@@ -274,8 +377,8 @@ const createUserMessage =
 
 
 /* ==========================================
-   EDIT USER
-   ========================================== */
+   EDIT USER DOM
+========================================== */
 
 const editUserOverlay =
     document.getElementById(
@@ -325,13 +428,17 @@ const cancelEditButton =
 
 /* ==========================================
    INITIALIZE
-   ========================================== */
+========================================== */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    initializeAdmin
-);
-
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeAdmin,
+        { once: true }
+    );
+} else {
+    void initializeAdmin();
+}
 
 async function initializeAdmin() {
 
@@ -341,6 +448,7 @@ async function initializeAdmin() {
             "LabChat Admin: initializing..."
         );
 
+
         const {
             data,
             error
@@ -348,6 +456,7 @@ async function initializeAdmin() {
             await supabaseClient
                 .auth
                 .getSession();
+
 
         if (error) {
 
@@ -357,8 +466,10 @@ async function initializeAdmin() {
             );
 
             redirectToLogin();
+
             return;
         }
+
 
         if (!data?.session) {
 
@@ -367,23 +478,29 @@ async function initializeAdmin() {
             );
 
             redirectToLogin();
+
             return;
         }
 
+
         currentAdmin =
             data.session.user;
+
 
         console.log(
             "Authenticated user:",
             currentAdmin.id
         );
 
+
         const verified =
             await verifyAdmin();
+
 
         if (!verified) {
             return;
         }
+
 
         if (loadingScreen) {
 
@@ -392,12 +509,14 @@ async function initializeAdmin() {
             );
         }
 
+
         if (adminApp) {
 
             adminApp.classList.remove(
                 "hidden"
             );
         }
+
 
         console.log(
             "LabChat Admin: ready."
@@ -417,15 +536,17 @@ async function initializeAdmin() {
 
 /* ==========================================
    VERIFY ADMIN
-   ========================================== */
+========================================== */
 
 async function verifyAdmin() {
 
     if (!currentAdmin) {
 
         redirectToLogin();
+
         return false;
     }
+
 
     const {
         data,
@@ -442,6 +563,7 @@ async function verifyAdmin() {
             )
             .maybeSingle();
 
+
     if (error) {
 
         console.error(
@@ -450,8 +572,10 @@ async function verifyAdmin() {
         );
 
         redirectToLogin();
+
         return false;
     }
+
 
     if (!data) {
 
@@ -459,16 +583,21 @@ async function verifyAdmin() {
             "No profile found for user."
         );
 
+
         await supabaseClient
             .auth
             .signOut();
 
+
         redirectToLogin();
+
         return false;
     }
 
+
     currentProfile =
         data;
+
 
     if (
         currentProfile.role !==
@@ -479,13 +608,17 @@ async function verifyAdmin() {
             "Admin access denied."
         );
 
+
         await supabaseClient
             .auth
             .signOut();
 
+
         redirectToLogin();
+
         return false;
     }
+
 
     if (
         currentProfile.is_active ===
@@ -496,13 +629,17 @@ async function verifyAdmin() {
             "Admin account is inactive."
         );
 
+
         await supabaseClient
             .auth
             .signOut();
 
+
         redirectToLogin();
+
         return false;
     }
+
 
     updateAdminIdentity();
 
@@ -516,13 +653,14 @@ async function verifyAdmin() {
 
 /* ==========================================
    ADMIN IDENTITY
-   ========================================== */
+========================================== */
 
 function updateAdminIdentity() {
 
     if (!adminName) {
         return;
     }
+
 
     adminName.textContent =
         currentProfile.username ||
@@ -533,7 +671,7 @@ function updateAdminIdentity() {
 
 /* ==========================================
    NAVIGATION
-   ========================================== */
+========================================== */
 
 sectionButtons.forEach(
     button => {
@@ -545,9 +683,11 @@ sectionButtons.forEach(
                 const section =
                     button.dataset.section;
 
+
                 if (!section) {
                     return;
                 }
+
 
                 showSection(
                     section
@@ -558,7 +698,9 @@ sectionButtons.forEach(
 );
 
 
-function showSection(section) {
+function showSection(
+    section
+) {
 
     dashboardSection?.classList.add(
         "hidden"
@@ -575,6 +717,11 @@ function showSection(section) {
     accessCodesSection?.classList.add(
         "hidden"
     );
+
+    pdfSection?.classList.add(
+        "hidden"
+    );
+
 
     navItems.forEach(
         item => {
@@ -595,10 +742,12 @@ function showSection(section) {
             "hidden"
         );
 
+
         setPageHeader(
             "Dashboard",
             "Manage your LabChat system."
         );
+
     }
 
 
@@ -611,30 +760,15 @@ function showSection(section) {
             "hidden"
         );
 
+
         setPageHeader(
             "Users",
             "Manage LabChat accounts."
         );
 
+
         loadUsers();
-    }
 
-
-    else if (
-        section ===
-        "access-codes"
-    ) {
-
-        accessCodesSection?.classList.remove(
-            "hidden"
-        );
-
-        setPageHeader(
-            "Access Codes",
-            "Manage LabChat access credentials."
-        );
-
-        loadAccessCodes();
     }
 
 
@@ -647,10 +781,54 @@ function showSection(section) {
             "hidden"
         );
 
+
         setPageHeader(
             "Create User",
             "Create a new LabChat account."
         );
+
+    }
+
+
+    else if (
+        section ===
+        "access-codes"
+    ) {
+
+        accessCodesSection?.classList.remove(
+            "hidden"
+        );
+
+
+        setPageHeader(
+            "Access Codes",
+            "Manage LabChat access credentials."
+        );
+
+
+        loadAccessCodes();
+
+    }
+
+
+    else if (
+        section ===
+        "pdfs"
+    ) {
+
+        pdfSection?.classList.remove(
+            "hidden"
+        );
+
+
+        setPageHeader(
+            "PDF Management",
+            "Manage and switch the active LabChat PDF."
+        );
+
+
+        loadPDFDocuments();
+
     }
 
 
@@ -682,6 +860,7 @@ function setPageHeader(
             title;
     }
 
+
     if (pageSubtitle) {
 
         pageSubtitle.textContent =
@@ -691,8 +870,8 @@ function setPageHeader(
 
 
 /* ==========================================
-   LOAD USERS
-   ========================================== */
+   USERS
+========================================== */
 
 async function loadUsers() {
 
@@ -700,7 +879,9 @@ async function loadUsers() {
         return;
     }
 
+
     showLoading();
+
 
     const {
         data,
@@ -714,9 +895,11 @@ async function loadUsers() {
             .order(
                 "created_at",
                 {
-                    ascending: false
+                    ascending:
+                        false
                 }
             );
+
 
     if (error) {
 
@@ -725,35 +908,41 @@ async function loadUsers() {
             error
         );
 
+
         showTableMessage(
             "Could not load users."
         );
 
+
         return;
     }
 
+
     users =
         data || [];
+
 
     renderUsers(
         users
     );
 
+
     updateDashboardStats();
 }
 
 
-/* ==========================================
-   RENDER USERS
-   ========================================== */
-
-function renderUsers(list) {
+function renderUsers(
+    list
+) {
 
     if (!usersTableBody) {
         return;
     }
 
-    usersTableBody.innerHTML = "";
+
+    usersTableBody.innerHTML =
+        "";
+
 
     if (
         !list ||
@@ -764,8 +953,10 @@ function renderUsers(list) {
             "No users found."
         );
 
+
         return;
     }
+
 
     list.forEach(
         user => {
@@ -775,26 +966,32 @@ function renderUsers(list) {
                     "tr"
                 );
 
+
             const userCell =
                 document.createElement(
                     "td"
                 );
 
-            const userWrapper =
+
+            const wrapper =
                 document.createElement(
                     "div"
                 );
 
-            userWrapper.className =
+
+            wrapper.className =
                 "user-cell";
+
 
             const avatar =
                 document.createElement(
                     "div"
                 );
 
+
             avatar.className =
                 "user-avatar";
+
 
             avatar.textContent =
                 getInitials(
@@ -802,30 +999,37 @@ function renderUsers(list) {
                     "U"
                 );
 
+
             const identity =
                 document.createElement(
                     "div"
                 );
+
 
             const name =
                 document.createElement(
                     "div"
                 );
 
+
             name.className =
                 "user-name";
+
 
             name.textContent =
                 user.username ||
                 "Unknown";
+
 
             const email =
                 document.createElement(
                     "div"
                 );
 
+
             email.className =
                 "user-email";
+
 
             if (
                 user.id ===
@@ -837,38 +1041,43 @@ function renderUsers(list) {
                     "";
             }
 
+
             identity.appendChild(
                 name
             );
+
 
             identity.appendChild(
                 email
             );
 
-            userWrapper.appendChild(
+
+            wrapper.appendChild(
                 avatar
             );
 
-            userWrapper.appendChild(
+
+            wrapper.appendChild(
                 identity
             );
 
+
             userCell.appendChild(
-                userWrapper
+                wrapper
             );
 
-
-            /* ROLE */
 
             const roleCell =
                 document.createElement(
                     "td"
                 );
 
+
             const roleBadge =
                 document.createElement(
                     "span"
                 );
+
 
             roleBadge.className =
                 `role-badge ${
@@ -877,29 +1086,32 @@ function renderUsers(list) {
                         : "role-user"
                 }`;
 
+
             roleBadge.textContent =
                 user.role ||
                 "user";
+
 
             roleCell.appendChild(
                 roleBadge
             );
 
 
-            /* STATUS */
-
             const statusCell =
                 document.createElement(
                     "td"
                 );
+
 
             const statusBadge =
                 document.createElement(
                     "span"
                 );
 
+
             const isActive =
                 user.is_active !== false;
+
 
             statusBadge.className =
                 `status-badge ${
@@ -908,22 +1120,23 @@ function renderUsers(list) {
                         : "status-inactive"
                 }`;
 
+
             statusBadge.textContent =
                 isActive
                     ? "Active"
                     : "Inactive";
+
 
             statusCell.appendChild(
                 statusBadge
             );
 
 
-            /* CREATED */
-
             const createdCell =
                 document.createElement(
                     "td"
                 );
+
 
             createdCell.textContent =
                 formatDate(
@@ -931,17 +1144,17 @@ function renderUsers(list) {
                 );
 
 
-            /* ACTIONS */
-
             const actionsCell =
                 document.createElement(
                     "td"
                 );
 
+
             const actions =
                 document.createElement(
                     "div"
                 );
+
 
             actions.className =
                 "table-actions";
@@ -952,14 +1165,18 @@ function renderUsers(list) {
                     "button"
                 );
 
+
             editButton.type =
                 "button";
+
 
             editButton.className =
                 "action-button";
 
+
             editButton.textContent =
                 "Edit";
+
 
             editButton.addEventListener(
                 "click",
@@ -977,8 +1194,10 @@ function renderUsers(list) {
                     "button"
                 );
 
+
             statusButton.type =
                 "button";
+
 
             statusButton.className =
                 `action-button ${
@@ -987,17 +1206,33 @@ function renderUsers(list) {
                         : "success"
                 }`;
 
+
             statusButton.textContent =
                 isActive
                     ? "Deactivate"
                     : "Activate";
 
+
             statusButton.addEventListener(
                 "click",
                 () => {
 
-                    toggleUserStatus(
+                    void toggleUserStatus(
                         user
+                    ).catch(
+                        error => {
+
+                            console.error(
+                                "Status update error:",
+                                error
+                            );
+
+                            window.alert(
+                                getSupabaseErrorMessage(
+                                    error
+                                )
+                            );
+                        }
                     );
                 }
             );
@@ -1011,6 +1246,7 @@ function renderUsers(list) {
                 statusButton.disabled =
                     true;
 
+
                 statusButton.title =
                     "You cannot deactivate yourself.";
             }
@@ -1020,9 +1256,11 @@ function renderUsers(list) {
                 editButton
             );
 
+
             actions.appendChild(
                 statusButton
             );
+
 
             actionsCell.appendChild(
                 actions
@@ -1033,21 +1271,26 @@ function renderUsers(list) {
                 userCell
             );
 
+
             row.appendChild(
                 roleCell
             );
+
 
             row.appendChild(
                 statusCell
             );
 
+
             row.appendChild(
                 createdCell
             );
 
+
             row.appendChild(
                 actionsCell
             );
+
 
             usersTableBody.appendChild(
                 row
@@ -1058,8 +1301,8 @@ function renderUsers(list) {
 
 
 /* ==========================================
-   SEARCH USERS
-   ========================================== */
+   USER SEARCH
+========================================== */
 
 if (userSearch) {
 
@@ -1072,14 +1315,17 @@ if (userSearch) {
                     .trim()
                     .toLowerCase();
 
+
             if (!query) {
 
                 renderUsers(
                     users
                 );
 
+
                 return;
             }
+
 
             const filtered =
                 users.filter(
@@ -1094,7 +1340,9 @@ if (userSearch) {
                                 .includes(
                                     query
                                 )
+
                             ||
+
                             String(
                                 user.role ||
                                 ""
@@ -1107,6 +1355,7 @@ if (userSearch) {
                     }
                 );
 
+
             renderUsers(
                 filtered
             );
@@ -1117,23 +1366,23 @@ if (userSearch) {
 
 /* ==========================================
    REFRESH USERS
-   ========================================== */
+========================================== */
 
 if (refreshUsersButton) {
 
     refreshUsersButton.addEventListener(
         "click",
-        async () => {
+        () => {
 
-            await loadUsers();
+            loadUsers();
         }
     );
 }
 
 
 /* ==========================================
-   DASHBOARD STATS
-   ========================================== */
+   DASHBOARD
+========================================== */
 
 function updateDashboardStats() {
 
@@ -1141,11 +1390,13 @@ function updateDashboardStats() {
         return;
     }
 
+
     const activeCount =
         users.filter(
             user =>
                 user.is_active !== false
         ).length;
+
 
     if (totalUsers) {
 
@@ -1153,31 +1404,30 @@ function updateDashboardStats() {
             users.length;
     }
 
+
     if (activeUsers) {
 
         activeUsers.textContent =
             activeCount;
     }
 
-    loadOnlineUserCount();
+
+    void loadOnlineUserCount();
+
 
     if (totalMessages) {
 
-        totalMessages.textContent =
-            "—";
+        void loadTotalMessages();
     }
 }
 
-
-/* ==========================================
-   ONLINE USERS
-   ========================================== */
 
 async function loadOnlineUserCount() {
 
     if (!onlineUsers) {
         return;
     }
+
 
     const {
         count,
@@ -1188,10 +1438,14 @@ async function loadOnlineUserCount() {
             .select(
                 "username",
                 {
-                    count: "exact",
-                    head: true
+                    count:
+                        "exact",
+
+                    head:
+                        true
                 }
             );
+
 
     if (error) {
 
@@ -1200,20 +1454,69 @@ async function loadOnlineUserCount() {
             error
         );
 
+
         onlineUsers.textContent =
             "—";
 
+
         return;
     }
+
 
     onlineUsers.textContent =
         count ?? 0;
 }
 
 
+async function loadTotalMessages() {
+
+    if (!totalMessages) {
+        return;
+    }
+
+
+    const {
+        count,
+        error
+    } =
+        await supabaseClient
+            .from("messages")
+            .select(
+                "id",
+                {
+                    count:
+                        "exact",
+
+                    head:
+                        true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Message count error:",
+            error
+        );
+
+
+        totalMessages.textContent =
+            "—";
+
+
+        return;
+    }
+
+
+    totalMessages.textContent =
+        count ?? 0;
+}
+
+
 /* ==========================================
    CREATE USER
-   ========================================== */
+========================================== */
 
 if (createUserForm) {
 
@@ -1223,22 +1526,27 @@ if (createUserForm) {
 
             event.preventDefault();
 
+
             const email =
                 newUserEmail?.value
                     .trim()
                     .toLowerCase();
 
+
             const username =
                 newUserUsername?.value
                     .trim();
+
 
             const password =
                 newUserPassword?.value ||
                 "";
 
+
             const role =
                 newUserRole?.value ||
                 "user";
+
 
             setCreateUserMessage(
                 "",
@@ -1253,8 +1561,10 @@ if (createUserForm) {
                     "error"
                 );
 
+
                 return;
             }
+
 
             if (!username) {
 
@@ -1263,18 +1573,10 @@ if (createUserForm) {
                     "error"
                 );
 
-                return;
-            }
-
-            if (!password) {
-
-                setCreateUserMessage(
-                    "Password is required.",
-                    "error"
-                );
 
                 return;
             }
+
 
             if (
                 password.length <
@@ -1286,6 +1588,7 @@ if (createUserForm) {
                     "error"
                 );
 
+
                 return;
             }
 
@@ -1295,6 +1598,7 @@ if (createUserForm) {
                 createUserButton.disabled =
                     true;
 
+
                 createUserButton.textContent =
                     "Creating User...";
             }
@@ -1303,12 +1607,15 @@ if (createUserForm) {
             try {
 
                 const {
-                    data: sessionData,
-                    error: sessionError
+                    data:
+                        sessionData,
+                    error:
+                        sessionError
                 } =
                     await supabaseClient
                         .auth
                         .getSession();
+
 
                 if (
                     sessionError ||
@@ -1331,33 +1638,17 @@ if (createUserForm) {
                             "create-user",
                             {
                                 body: {
-                                    email:
-                                        email,
-
-                                    username:
-                                        username,
-
-                                    password:
-                                        password,
-
-                                    role:
-                                        role
+                                    email,
+                                    username,
+                                    password,
+                                    role
                                 }
                             }
                         );
 
 
                 if (error) {
-
-                    console.error(
-                        "Create user function error:",
-                        error
-                    );
-
-                    throw new Error(
-                        error.message ||
-                        "Could not contact the create-user function."
-                    );
+                    throw error;
                 }
 
 
@@ -1376,7 +1667,9 @@ if (createUserForm) {
                     "success"
                 );
 
+
                 createUserForm.reset();
+
 
                 await loadUsers();
 
@@ -1387,10 +1680,11 @@ if (createUserForm) {
                     error
                 );
 
+
                 setCreateUserMessage(
-                    error instanceof Error
-                        ? error.message
-                        : "Could not create user.",
+                    getSupabaseErrorMessage(
+                        error
+                    ),
                     "error"
                 );
 
@@ -1400,6 +1694,7 @@ if (createUserForm) {
 
                     createUserButton.disabled =
                         false;
+
 
                     createUserButton.textContent =
                         "Create User";
@@ -1419,8 +1714,10 @@ function setCreateUserMessage(
         return;
     }
 
+
     createUserMessage.textContent =
         message;
+
 
     createUserMessage.className =
         `form-message ${
@@ -1430,23 +1727,28 @@ function setCreateUserMessage(
 
 
 /* ==========================================
-   EDIT USER MODAL
-   ========================================== */
+   EDIT USER
+========================================== */
 
-function openEditModal(user) {
+function openEditModal(
+    user
+) {
 
     if (!editUserOverlay) {
         return;
     }
 
+
     editingUserId =
         user.id;
+
 
     if (editUserId) {
 
         editUserId.value =
             user.id;
     }
+
 
     if (editUsername) {
 
@@ -1455,12 +1757,14 @@ function openEditModal(user) {
             "";
     }
 
+
     if (editRole) {
 
         editRole.value =
             user.role ||
             "user";
     }
+
 
     if (editStatus) {
 
@@ -1470,63 +1774,40 @@ function openEditModal(user) {
                 : "true";
     }
 
-    if (editUserMessage) {
 
-        editUserMessage.textContent =
-            "";
+    setEditUserMessage(
+        "",
+        ""
+    );
 
-        editUserMessage.className =
-            "form-message";
-    }
 
     editUserOverlay.classList.remove(
         "hidden"
     );
 
-    if (editUsername) {
 
-        setTimeout(
-            () => {
-
-                editUsername.focus();
-
-            },
-            50
-        );
-    }
+    editUsername?.focus();
 }
 
 
-/* ==========================================
-   CLOSE EDIT MODAL
-   ========================================== */
-
 function closeEditUserModal() {
 
-    if (!editUserOverlay) {
-        return;
-    }
-
-    editUserOverlay.classList.add(
+    editUserOverlay?.classList.add(
         "hidden"
     );
+
 
     editingUserId =
         null;
 
-    if (editUserForm) {
 
-        editUserForm.reset();
-    }
+    editUserForm?.reset();
 
-    if (editUserMessage) {
 
-        editUserMessage.textContent =
-            "";
-
-        editUserMessage.className =
-            "form-message";
-    }
+    setEditUserMessage(
+        "",
+        ""
+    );
 }
 
 
@@ -1548,10 +1829,6 @@ if (cancelEditButton) {
 }
 
 
-/* ==========================================
-   EDIT USER FORM
-   ========================================== */
-
 if (editUserForm) {
 
     editUserForm.addEventListener(
@@ -1560,9 +1837,26 @@ if (editUserForm) {
 
             event.preventDefault();
 
+
             const userId =
                 editingUserId ||
                 editUserId?.value;
+
+
+            const username =
+                editUsername?.value
+                    .trim();
+
+
+            const role =
+                editRole?.value ||
+                "user";
+
+
+            const isActive =
+                editStatus?.value ===
+                "true";
+
 
             if (!userId) {
 
@@ -1571,20 +1865,9 @@ if (editUserForm) {
                     "error"
                 );
 
+
                 return;
             }
-
-            const username =
-                editUsername?.value
-                    .trim();
-
-            const role =
-                editRole?.value ||
-                "user";
-
-            const isActive =
-                editStatus?.value ===
-                "true";
 
 
             if (!username) {
@@ -1593,6 +1876,7 @@ if (editUserForm) {
                     "Username is required.",
                     "error"
                 );
+
 
                 return;
             }
@@ -1609,24 +1893,35 @@ if (editUserForm) {
                     "error"
                 );
 
+
                 return;
             }
 
 
-            await updateUserProfile(
-                userId,
-                username,
-                role,
-                isActive
-            );
+            try {
+                await updateUserProfile(
+                    userId,
+                    username,
+                    role,
+                    isActive
+                );
+            } catch (error) {
+                console.error(
+                    "Update profile error:",
+                    error
+                );
+
+                setEditUserMessage(
+                    getSupabaseErrorMessage(
+                        error
+                    ),
+                    "error"
+                );
+            }
         }
     );
 }
 
-
-/* ==========================================
-   UPDATE USER PROFILE
-   ========================================== */
 
 async function updateUserProfile(
     userId,
@@ -1635,20 +1930,18 @@ async function updateUserProfile(
     isActive
 ) {
 
-    if (!userId) {
-        return;
-    }
-
     if (
         userId ===
         currentAdmin?.id &&
-        role !== "admin"
+        role !==
+        "admin"
     ) {
 
         setEditUserMessage(
             "You cannot remove your own admin role.",
             "error"
         );
+
 
         return;
     }
@@ -1660,12 +1953,8 @@ async function updateUserProfile(
         await supabaseClient
             .from("profiles")
             .update({
-                username:
-                    username,
-
-                role:
-                    role,
-
+                username,
+                role,
                 is_active:
                     isActive
             })
@@ -1682,10 +1971,14 @@ async function updateUserProfile(
             error
         );
 
+
         setEditUserMessage(
-            "Could not update user. Check your admin database policies.",
+            getSupabaseErrorMessage(
+                error
+            ),
             "error"
         );
+
 
         return;
     }
@@ -1699,11 +1992,14 @@ async function updateUserProfile(
         currentProfile.username =
             username;
 
+
         currentProfile.role =
             role;
 
+
         currentProfile.is_active =
             isActive;
+
 
         updateAdminIdentity();
     }
@@ -1720,6 +2016,7 @@ async function updateUserProfile(
 
             closeEditUserModal();
 
+
             await loadUsers();
 
         },
@@ -1728,10 +2025,6 @@ async function updateUserProfile(
 }
 
 
-/* ==========================================
-   ACTIVATE / DEACTIVATE USER
-   ========================================== */
-
 async function toggleUserStatus(
     user
 ) {
@@ -1739,6 +2032,7 @@ async function toggleUserStatus(
     if (!user) {
         return;
     }
+
 
     if (
         user.id ===
@@ -1749,8 +2043,10 @@ async function toggleUserStatus(
             "You cannot deactivate yourself."
         );
 
+
         return;
     }
+
 
     const newStatus =
         user.is_active === false;
@@ -1778,12 +2074,17 @@ async function toggleUserStatus(
             error
         );
 
+
         alert(
-            "Could not change user status."
+            getSupabaseErrorMessage(
+                error
+            )
         );
+
 
         return;
     }
+
 
     await loadUsers();
 }
@@ -1791,13 +2092,14 @@ async function toggleUserStatus(
 
 /* ==========================================
    ACCESS CODE MANAGEMENT
-   ========================================== */
+========================================== */
 
 async function loadAccessCodes() {
 
     if (!accessCodesTableBody) {
         return;
     }
+
 
     showAccessCodeTableMessage(
         "Loading access codes..."
@@ -1816,7 +2118,8 @@ async function loadAccessCodes() {
             .order(
                 "created_at",
                 {
-                    ascending: false
+                    ascending:
+                        false
                 }
             );
 
@@ -1828,9 +2131,11 @@ async function loadAccessCodes() {
             error
         );
 
+
         showAccessCodeTableMessage(
             "Could not load access codes."
         );
+
 
         return;
     }
@@ -1839,7 +2144,9 @@ async function loadAccessCodes() {
     accessCodes =
         data || [];
 
+
     await loadAccessCodeUsers();
+
 
     renderAccessCodes(
         accessCodes
@@ -1861,7 +2168,8 @@ async function loadAccessCodeUsers() {
             .order(
                 "username",
                 {
-                    ascending: true
+                    ascending:
+                        true
                 }
             );
 
@@ -1873,7 +2181,10 @@ async function loadAccessCodeUsers() {
             error
         );
 
-        accessCodeUsers = [];
+
+        accessCodeUsers =
+            [];
+
 
         return;
     }
@@ -1881,6 +2192,7 @@ async function loadAccessCodeUsers() {
 
     accessCodeUsers =
         data || [];
+
 
     populateAccessCodeUserSelect();
 }
@@ -1890,10 +2202,14 @@ function getAccessCodeUser(
     userId
 ) {
 
-    return accessCodeUsers.find(
-        user =>
-            user.id === userId
-    ) || null;
+    return (
+        accessCodeUsers.find(
+            user =>
+                user.id ===
+                userId
+        ) ||
+        null
+    );
 }
 
 
@@ -1903,22 +2219,28 @@ function populateAccessCodeUserSelect() {
         return;
     }
 
+
     const selected =
         accessCodeUser.value;
 
+
     accessCodeUser.innerHTML =
         "";
+
 
     const placeholder =
         document.createElement(
             "option"
         );
 
+
     placeholder.value =
         "";
 
+
     placeholder.textContent =
         "Select user";
+
 
     accessCodeUser.appendChild(
         placeholder
@@ -1933,8 +2255,10 @@ function populateAccessCodeUserSelect() {
                     "option"
                 );
 
+
             option.value =
                 user.id;
+
 
             option.textContent =
                 `${user.username || "Unknown"}${
@@ -1942,6 +2266,7 @@ function populateAccessCodeUserSelect() {
                         ? " (Inactive)"
                         : ""
                 }`;
+
 
             accessCodeUser.appendChild(
                 option
@@ -1966,6 +2291,7 @@ function renderAccessCodes(
         return;
     }
 
+
     accessCodesTableBody.innerHTML =
         "";
 
@@ -1978,6 +2304,7 @@ function renderAccessCodes(
         showAccessCodeTableMessage(
             "No access codes found."
         );
+
 
         return;
     }
@@ -1998,19 +2325,19 @@ function renderAccessCodes(
                 );
 
 
-            /* USER */
-
             const userCell =
                 document.createElement(
                     "td"
                 );
 
-            const userWrapper =
+
+            const wrapper =
                 document.createElement(
                     "div"
                 );
 
-            userWrapper.className =
+
+            wrapper.className =
                 "access-code-user";
 
 
@@ -2019,8 +2346,10 @@ function renderAccessCodes(
                     "div"
                 );
 
+
             avatar.className =
                 "user-avatar";
+
 
             avatar.textContent =
                 getInitials(
@@ -2034,6 +2363,7 @@ function renderAccessCodes(
                     "div"
                 );
 
+
             meta.className =
                 "access-code-meta";
 
@@ -2042,6 +2372,7 @@ function renderAccessCodes(
                 document.createElement(
                     "strong"
                 );
+
 
             name.textContent =
                 user?.username ||
@@ -2053,13 +2384,14 @@ function renderAccessCodes(
                     "span"
                 );
 
+
             sub.textContent =
                 code.failed_attempts > 0
                     ? `${code.failed_attempts} failed attempt${
                         code.failed_attempts === 1
                             ? ""
                             : "s"
-                      }`
+                    }`
                     : "No failed attempts";
 
 
@@ -2067,29 +2399,32 @@ function renderAccessCodes(
                 name
             );
 
+
             meta.appendChild(
                 sub
             );
 
-            userWrapper.appendChild(
+
+            wrapper.appendChild(
                 avatar
             );
 
-            userWrapper.appendChild(
+
+            wrapper.appendChild(
                 meta
             );
 
+
             userCell.appendChild(
-                userWrapper
+                wrapper
             );
 
-
-            /* STATUS */
 
             const statusCell =
                 document.createElement(
                     "td"
                 );
+
 
             const statusBadge =
                 document.createElement(
@@ -2141,12 +2476,11 @@ function renderAccessCodes(
             );
 
 
-            /* EXPIRATION */
-
             const expiresCell =
                 document.createElement(
                     "td"
                 );
+
 
             expiresCell.textContent =
                 code.expires_at
@@ -2156,12 +2490,11 @@ function renderAccessCodes(
                     : "Never";
 
 
-            /* LAST USED */
-
             const lastUsedCell =
                 document.createElement(
                     "td"
                 );
+
 
             lastUsedCell.textContent =
                 code.last_used_at
@@ -2171,12 +2504,11 @@ function renderAccessCodes(
                     : "Never";
 
 
-            /* FAILED */
-
             const failedCell =
                 document.createElement(
                     "td"
                 );
+
 
             failedCell.textContent =
                 String(
@@ -2185,17 +2517,17 @@ function renderAccessCodes(
                 );
 
 
-            /* ACTIONS */
-
             const actionsCell =
                 document.createElement(
                     "td"
                 );
 
+
             const actions =
                 document.createElement(
                     "div"
                 );
+
 
             actions.className =
                 "table-actions";
@@ -2206,14 +2538,18 @@ function renderAccessCodes(
                     "button"
                 );
 
+
             changeButton.type =
                 "button";
+
 
             changeButton.className =
                 "action-button";
 
+
             changeButton.textContent =
                 "Change";
+
 
             changeButton.addEventListener(
                 "click",
@@ -2231,8 +2567,10 @@ function renderAccessCodes(
                     "button"
                 );
 
+
             toggleButton.type =
                 "button";
+
 
             toggleButton.className =
                 `action-button ${
@@ -2241,10 +2579,12 @@ function renderAccessCodes(
                         : "success"
                 }`;
 
+
             toggleButton.textContent =
                 code.is_active
                     ? "Block"
                     : "Unblock";
+
 
             toggleButton.addEventListener(
                 "click",
@@ -2262,14 +2602,18 @@ function renderAccessCodes(
                     "button"
                 );
 
+
             deleteButton.type =
                 "button";
+
 
             deleteButton.className =
                 "action-button danger";
 
+
             deleteButton.textContent =
                 "Delete";
+
 
             deleteButton.addEventListener(
                 "click",
@@ -2286,13 +2630,16 @@ function renderAccessCodes(
                 changeButton
             );
 
+
             actions.appendChild(
                 toggleButton
             );
 
+
             actions.appendChild(
                 deleteButton
             );
+
 
             actionsCell.appendChild(
                 actions
@@ -2303,25 +2650,31 @@ function renderAccessCodes(
                 userCell
             );
 
+
             row.appendChild(
                 statusCell
             );
+
 
             row.appendChild(
                 expiresCell
             );
 
+
             row.appendChild(
                 lastUsedCell
             );
+
 
             row.appendChild(
                 failedCell
             );
 
+
             row.appendChild(
                 actionsCell
             );
+
 
             accessCodesTableBody.appendChild(
                 row
@@ -2339,31 +2692,39 @@ function showAccessCodeTableMessage(
         return;
     }
 
+
     accessCodesTableBody.innerHTML =
         "";
+
 
     const row =
         document.createElement(
             "tr"
         );
 
+
     const cell =
         document.createElement(
             "td"
         );
 
+
     cell.colSpan =
         6;
+
 
     cell.className =
         "table-empty";
 
+
     cell.textContent =
         message;
+
 
     row.appendChild(
         cell
     );
+
 
     accessCodesTableBody.appendChild(
         row
@@ -2373,7 +2734,7 @@ function showAccessCodeTableMessage(
 
 /* ==========================================
    ACCESS CODE MODAL
-   ========================================== */
+========================================== */
 
 function openAccessCodeModal(
     code = null
@@ -2382,6 +2743,7 @@ function openAccessCodeModal(
     if (!accessCodeOverlay) {
         return;
     }
+
 
     editingAccessCodeId =
         code?.id ||
@@ -2429,6 +2791,7 @@ function openAccessCodeModal(
             code?.user_id ||
             "";
 
+
         accessCodeUser.disabled =
             Boolean(code);
     }
@@ -2438,6 +2801,7 @@ function openAccessCodeModal(
 
         accessCodeValue.value =
             "";
+
 
         accessCodeValue.focus();
     }
@@ -2470,16 +2834,20 @@ function closeAccessCodeModalFn() {
         "hidden"
     );
 
+
     editingAccessCodeId =
         null;
 
+
     accessCodeForm?.reset();
+
 
     if (accessCodeUser) {
 
         accessCodeUser.disabled =
             false;
     }
+
 
     setAccessCodeMessage(
         "",
@@ -2497,8 +2865,10 @@ function setAccessCodeMessage(
         return;
     }
 
+
     accessCodeMessage.textContent =
         message;
+
 
     accessCodeMessage.className =
         `form-message ${
@@ -2507,36 +2877,30 @@ function setAccessCodeMessage(
 }
 
 
-/* ==========================================
-   ACCESS CODE GENERATION
-   ========================================== */
-
 function generateNumericCode() {
-
-    let result =
-        "";
 
     const random =
         new Uint32Array(
             3
         );
 
+
     crypto.getRandomValues(
         random
     );
 
 
-    for (
-        let i = 0;
-        i < random.length;
-        i++
-    ) {
+    let result =
+        "";
 
-        result +=
-            String(
-                random[i]
-            );
-    }
+
+    random.forEach(
+        value => {
+
+            result +=
+                String(value);
+        }
+    );
 
 
     return result
@@ -2554,10 +2918,6 @@ function generateNumericCode() {
         );
 }
 
-
-/* ==========================================
-   ACCESS CODE EXPIRY
-   ========================================== */
 
 function getExpiryTimestamp(
     option,
@@ -2591,7 +2951,6 @@ function getExpiryTimestamp(
 
 
     if (!days) {
-
         return null;
     }
 
@@ -2615,6 +2974,7 @@ function getExpiryOption(
 
         return "never";
     }
+
 
     return "keep";
 }
@@ -2668,10 +3028,6 @@ function formatDateTime(
 }
 
 
-/* ==========================================
-   SHOW NEW CODE
-   ========================================== */
-
 function showNewAccessCode(
     user,
     rawCode
@@ -2704,6 +3060,7 @@ function showNewAccessCode(
         newAccessCodeMessage.textContent =
             "";
 
+
         newAccessCodeMessage.className =
             "form-message";
     }
@@ -2714,10 +3071,6 @@ function showNewAccessCode(
     );
 }
 
-
-/* ==========================================
-   SAVE ACCESS CODE
-   ========================================== */
 
 async function saveAccessCode() {
 
@@ -2744,6 +3097,7 @@ async function saveAccessCode() {
             "error"
         );
 
+
         return;
     }
 
@@ -2758,6 +3112,7 @@ async function saveAccessCode() {
             "error"
         );
 
+
         return;
     }
 
@@ -2766,6 +3121,7 @@ async function saveAccessCode() {
 
         saveAccessCodeButton.disabled =
             true;
+
 
         saveAccessCodeButton.textContent =
             editingAccessCodeId
@@ -2897,6 +3253,7 @@ async function saveAccessCode() {
             error
         );
 
+
         setAccessCodeMessage(
             getSupabaseErrorMessage(
                 error
@@ -2911,6 +3268,7 @@ async function saveAccessCode() {
             saveAccessCodeButton.disabled =
                 false;
 
+
             saveAccessCodeButton.textContent =
                 wasEditing
                     ? "Change Code"
@@ -2919,10 +3277,6 @@ async function saveAccessCode() {
     }
 }
 
-
-/* ==========================================
-   BLOCK / UNBLOCK ACCESS CODE
-   ========================================== */
 
 async function toggleAccessCode(
     code
@@ -2981,6 +3335,7 @@ async function toggleAccessCode(
             error
         );
 
+
         window.alert(
             getSupabaseErrorMessage(
                 error
@@ -2989,10 +3344,6 @@ async function toggleAccessCode(
     }
 }
 
-
-/* ==========================================
-   DELETE ACCESS CODE
-   ========================================== */
 
 async function deleteAccessCode(
     code
@@ -3052,6 +3403,7 @@ async function deleteAccessCode(
             error
         );
 
+
         window.alert(
             getSupabaseErrorMessage(
                 error
@@ -3063,7 +3415,7 @@ async function deleteAccessCode(
 
 /* ==========================================
    ACCESS CODE EVENTS
-   ========================================== */
+========================================== */
 
 if (createAccessCodeButton) {
 
@@ -3099,6 +3451,7 @@ if (generateAccessCodeButton) {
 
                 accessCodeValue.value =
                     generateNumericCode();
+
 
                 accessCodeValue.focus();
             }
@@ -3183,6 +3536,7 @@ if (copyNewAccessCodeButton) {
                 newAccessCodeValue?.textContent ||
                 "";
 
+
             if (!value) {
                 return;
             }
@@ -3200,6 +3554,7 @@ if (copyNewAccessCodeButton) {
                     newAccessCodeMessage.textContent =
                         "Copied.";
 
+
                     newAccessCodeMessage.className =
                         "form-message success";
                 }
@@ -3216,6 +3571,7 @@ if (copyNewAccessCodeButton) {
 
                     newAccessCodeMessage.textContent =
                         "Copy failed. Select the code manually.";
+
 
                     newAccessCodeMessage.className =
                         "form-message error";
@@ -3244,6 +3600,7 @@ if (accessCodeSearch) {
                     accessCodes
                 );
 
+
                 return;
             }
 
@@ -3256,6 +3613,7 @@ if (accessCodeSearch) {
                             getAccessCodeUser(
                                 code.user_id
                             );
+
 
                         return String(
                             user?.username ||
@@ -3296,8 +3654,1303 @@ if (accessCodeOverlay) {
 
 
 /* ==========================================
+   PDF MANAGEMENT
+========================================== */
+
+async function loadPDFDocuments() {
+
+    if (!pdfTableBody) {
+        return;
+    }
+
+
+    showPDFTableMessage(
+        "Loading PDFs..."
+    );
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("pdf_documents")
+            .select(
+                "id, title, file_name, github_path, github_url, is_active, uploaded_by, created_at, updated_at"
+            )
+            .order(
+                "created_at",
+                {
+                    ascending:
+                        false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Load PDF documents error:",
+            error
+        );
+
+
+        showPDFTableMessage(
+            "Could not load PDFs."
+        );
+
+
+        return;
+    }
+
+
+    pdfDocuments =
+        data || [];
+
+
+    renderPDFDocuments(
+        pdfDocuments
+    );
+}
+
+
+/* ==========================================
+   RENDER PDF DOCUMENTS
+========================================== */
+
+function renderPDFDocuments(
+    list
+) {
+
+    if (!pdfTableBody) {
+        return;
+    }
+
+
+    pdfTableBody.innerHTML =
+        "";
+
+
+    if (
+        !list ||
+        list.length === 0
+    ) {
+
+        showPDFTableMessage(
+            "No PDFs have been registered yet."
+        );
+
+
+        return;
+    }
+
+
+    list.forEach(
+        pdf => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            /* ==================================
+               PDF NAME
+            ================================== */
+
+            const titleCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const pdfIdentity =
+                document.createElement(
+                    "div"
+                );
+
+
+            pdfIdentity.className =
+                "pdf-identity";
+
+
+            const pdfIcon =
+                document.createElement(
+                    "div"
+                );
+
+
+            pdfIcon.className =
+                "pdf-icon";
+
+
+            pdfIcon.textContent =
+                "PDF";
+
+
+            const pdfInfo =
+                document.createElement(
+                    "div"
+                );
+
+
+            pdfInfo.className =
+                "pdf-info";
+
+
+            const title =
+                document.createElement(
+                    "strong"
+                );
+
+
+            title.textContent =
+                pdf.title ||
+                pdf.file_name ||
+                "Untitled PDF";
+
+
+            const filename =
+                document.createElement(
+                    "span"
+                );
+
+
+            filename.textContent =
+                pdf.file_name ||
+                "No filename";
+
+
+            pdfInfo.appendChild(
+                title
+            );
+
+
+            pdfInfo.appendChild(
+                filename
+            );
+
+
+            pdfIdentity.appendChild(
+                pdfIcon
+            );
+
+
+            pdfIdentity.appendChild(
+                pdfInfo
+            );
+
+
+            titleCell.appendChild(
+                pdfIdentity
+            );
+
+
+            /* ==================================
+               FILE
+            ================================== */
+
+            const fileCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            fileCell.textContent =
+                pdf.github_path ||
+                "—";
+
+
+            /* ==================================
+               STATUS
+            ================================== */
+
+            const statusCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const statusBadge =
+                document.createElement(
+                    "span"
+                );
+
+
+            statusBadge.className =
+                `status-badge ${
+                    pdf.is_active
+                        ? "status-active"
+                        : "status-inactive"
+                }`;
+
+
+            statusBadge.textContent =
+                pdf.is_active
+                    ? "Active"
+                    : "Inactive";
+
+
+            statusCell.appendChild(
+                statusBadge
+            );
+
+
+            /* ==================================
+               UPDATED
+            ================================== */
+
+            const updatedCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            updatedCell.textContent =
+                formatDateTime(
+                    pdf.updated_at ||
+                    pdf.created_at
+                );
+
+
+            /* ==================================
+               ACTIONS
+            ================================== */
+
+            const actionsCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const actions =
+                document.createElement(
+                    "div"
+                );
+
+
+            actions.className =
+                "table-actions";
+
+
+            /* ==================================
+               EDIT
+            ================================== */
+
+            const editButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            editButton.type =
+                "button";
+
+
+            editButton.className =
+                "action-button";
+
+
+            editButton.textContent =
+                "Edit";
+
+
+            editButton.addEventListener(
+                "click",
+                () => {
+
+                    openPDFModal(
+                        pdf
+                    );
+                }
+            );
+
+
+            /* ==================================
+               ACTIVE
+            ================================== */
+
+            const activeButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            activeButton.type =
+                "button";
+
+
+            activeButton.className =
+                `action-button ${
+                    pdf.is_active
+                        ? "success"
+                        : ""
+                }`;
+
+
+            activeButton.textContent =
+                pdf.is_active
+                    ? "Active"
+                    : "Set Active";
+
+
+            activeButton.disabled =
+                Boolean(
+                    pdf.is_active
+                );
+
+
+            if (
+                !pdf.is_active
+            ) {
+
+                activeButton.addEventListener(
+                    "click",
+                    () => {
+
+                        setActivePDF(
+                            pdf
+                        );
+                    }
+                );
+            }
+
+
+            /* ==================================
+               DELETE
+            ================================== */
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            deleteButton.type =
+                "button";
+
+
+            deleteButton.className =
+                "action-button danger";
+
+
+            deleteButton.textContent =
+                "Delete";
+
+
+            deleteButton.addEventListener(
+                "click",
+                () => {
+
+                    deletePDF(
+                        pdf
+                    );
+                }
+            );
+
+
+            actions.appendChild(
+                editButton
+            );
+
+
+            actions.appendChild(
+                activeButton
+            );
+
+
+            actions.appendChild(
+                deleteButton
+            );
+
+
+            actionsCell.appendChild(
+                actions
+            );
+
+
+            row.appendChild(
+                titleCell
+            );
+
+
+            row.appendChild(
+                fileCell
+            );
+
+
+            row.appendChild(
+                statusCell
+            );
+
+
+            row.appendChild(
+                updatedCell
+            );
+
+
+            row.appendChild(
+                actionsCell
+            );
+
+
+            pdfTableBody.appendChild(
+                row
+            );
+        }
+    );
+}
+
+
+/* ==========================================
+   PDF TABLE MESSAGE
+========================================== */
+
+function showPDFTableMessage(
+    message
+) {
+
+    if (!pdfTableBody) {
+        return;
+    }
+
+
+    pdfTableBody.innerHTML =
+        "";
+
+
+    const row =
+        document.createElement(
+            "tr"
+        );
+
+
+    const cell =
+        document.createElement(
+            "td"
+        );
+
+
+    cell.colSpan =
+        5;
+
+
+    cell.className =
+        "table-empty";
+
+
+    cell.textContent =
+        message;
+
+
+    row.appendChild(
+        cell
+    );
+
+
+    pdfTableBody.appendChild(
+        row
+    );
+}
+
+
+/* ==========================================
+   PDF SEARCH
+========================================== */
+
+if (pdfSearch) {
+
+    pdfSearch.addEventListener(
+        "input",
+        () => {
+
+            const query =
+                pdfSearch.value
+                    .trim()
+                    .toLowerCase();
+
+
+            if (!query) {
+
+                renderPDFDocuments(
+                    pdfDocuments
+                );
+
+
+                return;
+            }
+
+
+            const filtered =
+                pdfDocuments.filter(
+                    pdf => {
+
+                        return (
+                            String(
+                                pdf.title ||
+                                ""
+                            )
+                                .toLowerCase()
+                                .includes(
+                                    query
+                                )
+
+                            ||
+
+                            String(
+                                pdf.file_name ||
+                                ""
+                            )
+                                .toLowerCase()
+                                .includes(
+                                    query
+                                )
+
+                            ||
+
+                            String(
+                                pdf.github_path ||
+                                ""
+                            )
+                                .toLowerCase()
+                                .includes(
+                                    query
+                                )
+
+                            ||
+
+                            String(
+                                pdf.github_url ||
+                                ""
+                            )
+                                .toLowerCase()
+                                .includes(
+                                   query
+                                )
+                        );
+                    }
+                );
+
+
+            renderPDFDocuments(
+                filtered
+            );
+        }
+    );
+}
+
+
+/* ==========================================
+   PDF REFRESH
+========================================== */
+
+if (refreshPDFButton) {
+
+    refreshPDFButton.addEventListener(
+        "click",
+        () => {
+
+            loadPDFDocuments();
+        }
+    );
+}
+
+
+/* ==========================================
+   OPEN PDF MODAL
+========================================== */
+
+function openPDFModal(
+    pdf = null
+) {
+
+    if (!pdfOverlay) {
+        return;
+    }
+
+
+    editingPDFId =
+        pdf?.id ||
+        null;
+
+
+    if (pdfId) {
+
+        pdfId.value =
+            pdf?.id ||
+            "";
+    }
+
+
+    if (pdfModalTitle) {
+
+        pdfModalTitle.textContent =
+            pdf
+                ? "Edit PDF"
+                : "Add PDF";
+    }
+
+
+    if (pdfModalSubtitle) {
+
+        pdfModalSubtitle.textContent =
+            pdf
+                ? "Update the PDF information stored in LabChat."
+                : "Register a PDF that has already been uploaded to GitHub.";
+    }
+
+
+    if (pdfTitle) {
+
+        pdfTitle.value =
+            pdf?.title ||
+            "";
+    }
+
+
+    if (pdfFileName) {
+
+        pdfFileName.value =
+            pdf?.file_name ||
+            "";
+    }
+
+
+    if (pdfGithubPath) {
+
+        pdfGithubPath.value =
+            pdf?.github_path ||
+            "";
+    }
+
+
+    if (pdfGithubUrl) {
+
+        pdfGithubUrl.value =
+            pdf?.github_url ||
+            "";
+    }
+
+
+    if (pdfSetActive) {
+
+        const isActivePDF =
+            Boolean(
+                pdf?.is_active
+            );
+
+        /*
+         * An active PDF must remain active while it is being edited.
+         * The server-side RPC remains the authority for switching the
+         * active document; this only keeps the modal state truthful.
+         */
+        pdfSetActive.checked =
+            isActivePDF;
+
+        pdfSetActive.disabled =
+            isActivePDF;
+    }
+
+
+    setPDFMessage(
+        "",
+        ""
+    );
+
+
+    pdfOverlay.classList.remove(
+        "hidden"
+    );
+
+
+    pdfTitle?.focus();
+}
+
+
+/* ==========================================
+   CLOSE PDF MODAL
+========================================== */
+
+function closePDFModalFn() {
+    pdfOverlay?.classList.add(
+        "hidden"
+    );
+
+    editingPDFId = null;
+
+    pdfForm?.reset();
+
+    if (pdfSetActive) {
+
+        /*
+         * reset() restores HTML defaults, which could be checked. Set the
+         * new-PDF state explicitly so the next modal always starts usable.
+         */
+        pdfSetActive.checked =
+            false;
+
+        pdfSetActive.disabled =
+            false;
+    }
+
+    setPDFMessage("", "");
+}
+
+
+/* ==========================================
+   PDF MESSAGE
+========================================== */
+
+function setPDFMessage(
+    message,
+    type
+) {
+
+    if (!pdfMessage) {
+        return;
+    }
+
+
+    pdfMessage.textContent =
+        message;
+
+
+    pdfMessage.className =
+        `form-message ${
+            type || ""
+        }`;
+}
+
+
+/* ==========================================
+   SAVE PDF
+========================================== */
+
+async function savePDF() {
+    const wasEditing =
+        Boolean(
+            editingPDFId
+        );
+
+    const title =
+        pdfTitle?.value
+            .trim() ||
+        "";
+
+    const fileName =
+        pdfFileName?.value
+            .trim() ||
+        "";
+
+    const githubPath =
+        pdfGithubPath?.value
+            .trim() ||
+        "";
+
+    const githubUrl =
+        pdfGithubUrl?.value
+            .trim() ||
+        "";
+
+    const shouldBeActive =
+        Boolean(
+            pdfSetActive?.checked
+        );
+
+    /*
+     * Remember whether this PDF was already active
+     * before editing.
+     */
+    const wasActiveBeforeEdit =
+        Boolean(
+            editingPDFId &&
+            pdfDocuments?.find(
+                pdf =>
+                    pdf.id ===
+                    editingPDFId
+            )?.is_active
+        );
+
+    if (!title) {
+        setPDFMessage(
+            "PDF title is required.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!fileName) {
+        setPDFMessage(
+            "PDF filename is required.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (
+        !fileName
+            .toLowerCase()
+            .endsWith(
+                ".pdf"
+            )
+    ) {
+        setPDFMessage(
+            "Filename must end with .pdf.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!githubPath) {
+        setPDFMessage(
+            "GitHub path is required.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!githubUrl) {
+        setPDFMessage(
+            "GitHub URL is required.",
+            "error"
+        );
+
+        return;
+    }
+
+    try {
+        const parsedURL =
+            new URL(
+                githubUrl
+            );
+
+        if (
+            parsedURL.protocol !==
+                "https:" ||
+            (
+                parsedURL.hostname !==
+                    "github.com" &&
+                parsedURL.hostname !==
+                    "raw.githubusercontent.com"
+            )
+        ) {
+            setPDFMessage(
+                "Enter a valid GitHub PDF URL.",
+                "error"
+            );
+
+            return;
+        }
+
+    } catch {
+        setPDFMessage(
+            "Enter a valid GitHub PDF URL.",
+            "error"
+        );
+
+        return;
+    }
+
+    /*
+     * Prevent unsafe GitHub repository paths.
+     */
+    if (
+        githubPath.startsWith("/") ||
+        githubPath.includes("..") ||
+        githubPath.includes("\\")
+    ) {
+        setPDFMessage(
+            "Enter a valid GitHub repository path.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (savePDFButton) {
+        savePDFButton.disabled =
+            true;
+
+        savePDFButton.textContent =
+            wasEditing
+                ? "Saving..."
+                : "Adding...";
+    }
+
+    try {
+        let savedPDF =
+            null;
+
+        /* ==================================
+           UPDATE EXISTING PDF
+        ================================== */
+
+        if (wasEditing) {
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from(
+                        "pdf_documents"
+                    )
+                    .update({
+                        title,
+                        file_name:
+                            fileName,
+                        github_path:
+                            githubPath,
+                        github_url:
+                            githubUrl,
+                        updated_at:
+                            new Date().toISOString()
+                    })
+                    .eq(
+                        "id",
+                        editingPDFId
+                    )
+                    .select(
+                        "id, title, file_name, github_path, github_url, is_active, uploaded_by, created_at, updated_at"
+                    )
+                    .single();
+
+            if (error) {
+                throw error;
+            }
+
+            savedPDF =
+                data;
+        }
+
+        /* ==================================
+           INSERT NEW PDF
+        ================================== */
+
+        else {
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from(
+                        "pdf_documents"
+                    )
+                    .insert({
+                        title,
+                        file_name:
+                            fileName,
+                        github_path:
+                            githubPath,
+                        github_url:
+                            githubUrl,
+                        is_active:
+                            false,
+                        uploaded_by:
+                            currentAdmin?.id
+                    })
+                    .select(
+                        "id, title, file_name, github_path, github_url, is_active, uploaded_by, created_at, updated_at"
+                    )
+                    .single();
+
+            if (error) {
+                throw error;
+            }
+
+            savedPDF =
+                data;
+        }
+
+        /* ==================================
+           SET ACTIVE PDF
+        ================================== */
+
+        /*
+         * Activate when:
+         *
+         * 1. User checked "Set Active"
+         * OR
+         * 2. The PDF was already active before editing.
+         *
+         * This prevents an existing active PDF
+         * from accidentally losing its active state.
+         */
+        if (
+            savedPDF?.id &&
+            (
+                shouldBeActive ||
+                wasActiveBeforeEdit
+            )
+        ) {
+            const {
+                error
+            } =
+                await supabaseClient
+                    .rpc(
+                        "set_active_pdf",
+                        {
+                            p_pdf_id:
+                                savedPDF.id
+                        }
+                    );
+
+            if (error) {
+                throw error;
+            }
+        }
+
+        closePDFModalFn();
+
+        await loadPDFDocuments();
+
+    } catch (error) {
+        console.error(
+            "Save PDF error:",
+            error
+        );
+
+        setPDFMessage(
+            getSupabaseErrorMessage(
+                error
+            ),
+            "error"
+        );
+
+    } finally {
+        if (savePDFButton) {
+            savePDFButton.disabled =
+                false;
+
+            savePDFButton.textContent =
+                wasEditing
+                    ? "Save Changes"
+                    : "Add PDF";
+        }
+    }
+}
+
+
+/* ==========================================
+   SET ACTIVE PDF
+========================================== */
+
+async function setActivePDF(
+    pdf
+) {
+
+    if (!pdf?.id) {
+        return;
+    }
+
+
+    if (pdf.is_active) {
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            `Set "${pdf.title || pdf.file_name}" as the active LabChat PDF?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .rpc(
+                    "set_active_pdf",
+                    {
+                        p_pdf_id:
+                            pdf.id
+                    }
+                );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        await loadPDFDocuments();
+
+
+        window.alert(
+            `"${pdf.title || pdf.file_name}" is now the active PDF.`
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Set active PDF error:",
+            error
+        );
+
+
+        window.alert(
+            getSupabaseErrorMessage(
+                error
+            )
+        );
+    }
+}
+
+
+/* ==========================================
+   DELETE PDF
+========================================== */
+
+async function deletePDF(
+    pdf
+) {
+
+    if (!pdf?.id) {
+        return;
+    }
+
+
+    if (pdf.is_active) {
+
+        window.alert(
+            "This PDF is currently active. Set another PDF as active before deleting it."
+        );
+
+
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            `Delete "${pdf.title || pdf.file_name}" from the LabChat PDF registry?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from(
+                    "pdf_documents"
+                )
+                .delete()
+                .eq(
+                    "id",
+                    pdf.id
+                );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        await loadPDFDocuments();
+
+    } catch (error) {
+
+        console.error(
+            "Delete PDF error:",
+            error
+        );
+
+
+        window.alert(
+            getSupabaseErrorMessage(
+                error
+            )
+        );
+    }
+}
+
+
+/* ==========================================
+   PDF EVENTS
+========================================== */
+
+if (addPDFButton) {
+
+    addPDFButton.addEventListener(
+        "click",
+        () => {
+
+            openPDFModal();
+        }
+    );
+}
+
+
+if (pdfForm) {
+
+    pdfForm.addEventListener(
+        "submit",
+        event => {
+
+            event.preventDefault();
+
+            void savePDF();
+        }
+    );
+}
+
+
+if (closePDFModal) {
+
+    closePDFModal.addEventListener(
+        "click",
+        closePDFModalFn
+    );
+}
+
+
+if (cancelPDFButton) {
+
+    cancelPDFButton.addEventListener(
+        "click",
+        closePDFModalFn
+    );
+}
+
+
+if (pdfOverlay) {
+
+    pdfOverlay.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                pdfOverlay
+            ) {
+
+                closePDFModalFn();
+            }
+        }
+    );
+}
+
+
+/* ==========================================
    LOGOUT
-   ========================================== */
+========================================== */
 
 if (logoutButton) {
 
@@ -3332,7 +4985,7 @@ async function logout() {
 
 /* ==========================================
    REDIRECT
-   ========================================== */
+========================================== */
 
 function redirectToLogin() {
 
@@ -3342,8 +4995,8 @@ function redirectToLogin() {
 
 
 /* ==========================================
-   LOADING TABLE
-   ========================================== */
+   TABLE LOADING
+========================================== */
 
 function showLoading() {
 
@@ -3371,8 +5024,10 @@ function showLoading() {
     cell.colSpan =
         5;
 
+
     cell.className =
         "table-empty";
+
 
     cell.textContent =
         "Loading users...";
@@ -3382,15 +5037,12 @@ function showLoading() {
         cell
     );
 
+
     usersTableBody.appendChild(
         row
     );
 }
 
-
-/* ==========================================
-   TABLE MESSAGE
-   ========================================== */
 
 function showTableMessage(
     message
@@ -3420,8 +5072,10 @@ function showTableMessage(
     cell.colSpan =
         5;
 
+
     cell.className =
         "table-empty";
+
 
     cell.textContent =
         message;
@@ -3431,6 +5085,7 @@ function showTableMessage(
         cell
     );
 
+
     usersTableBody.appendChild(
         row
     );
@@ -3439,7 +5094,7 @@ function showTableMessage(
 
 /* ==========================================
    EDIT MESSAGE
-   ========================================== */
+========================================== */
 
 function setEditUserMessage(
     message,
@@ -3464,7 +5119,7 @@ function setEditUserMessage(
 
 /* ==========================================
    SUPABASE ERROR
-   ========================================== */
+========================================== */
 
 function getSupabaseErrorMessage(
     error
@@ -3481,7 +5136,7 @@ function getSupabaseErrorMessage(
 
 /* ==========================================
    HELPERS
-   ========================================== */
+========================================== */
 
 function getInitials(
     value
@@ -3496,7 +5151,6 @@ function getInitials(
 
 
     if (!text) {
-
         return "U";
     }
 
@@ -3533,7 +5187,6 @@ function formatDate(
 ) {
 
     if (!timestamp) {
-
         return "—";
     }
 
@@ -3571,8 +5224,8 @@ function formatDate(
 
 
 /* ==========================================
-   ESC KEY
-   ========================================== */
+   GLOBAL ESCAPE HANDLING
+========================================== */
 
 document.addEventListener(
     "keydown",
@@ -3598,6 +5251,7 @@ document.addEventListener(
                 "hidden"
             );
 
+
             return;
         }
 
@@ -3611,18 +5265,41 @@ document.addEventListener(
 
             closeAccessCodeModalFn();
 
+
             return;
         }
 
 
-        closeEditUserModal();
+        if (
+            pdfOverlay &&
+            !pdfOverlay.classList.contains(
+                "hidden"
+            )
+        ) {
+
+            closePDFModalFn();
+
+
+            return;
+        }
+
+
+        if (
+            editUserOverlay &&
+            !editUserOverlay.classList.contains(
+                "hidden"
+            )
+        ) {
+
+            closeEditUserModal();
+        }
     }
 );
 
 
 /* ==========================================
-   CLICK OUTSIDE EDIT MODAL
-   ========================================== */
+   CLICK OUTSIDE EDIT USER MODAL
+========================================== */
 
 if (editUserOverlay) {
 
